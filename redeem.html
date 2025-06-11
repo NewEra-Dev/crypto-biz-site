@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PEP'JO - Redeem Gift Card</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'crypto-blue-dark': '#001A33',
+            'crypto-blue': '#007BFF',
+            'crypto-orange': '#FF5722',
+            'crypto-orange-dark': '#E64A19',
+            'crypto-bg': '#121212',
+            'crypto-text': '#FFFFFF',
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body { font-family: 'Poppins', sans-serif; }
+  </style>
+</head>
+<body class="bg-crypto-bg text-crypto-text">
+  <header class="bg-crypto-blue-dark sticky top-0 z-50">
+    <nav class="container mx-auto flex items-center justify-between p-4">
+      <div class="text-2xl font-bold text-crypto-orange">PEP'JO</div>
+      <div class="hidden md:flex space-x-6">
+        <a href="index.html" class="hover:text-crypto-orange">Home</a>
+        <a href="services.html" class="hover:text-crypto-orange">Services</a>
+        <a href="about.html" class="hover:text-crypto-orange">About</a>
+        <a href="contact.html" class="hover:text-crypto-orange">Contact</a>
+        <a href="faq.html" class="hover:text-crypto-orange">FAQ</a>
+        <a href="redeem.html" class="hover:text-crypto-orange">Redeem</a>
+      </div>
+      <button class="hidden md:block bg-crypto-orange text-crypto-text px-4 py-2 rounded hover:bg-crypto-orange-dark">
+        Get Started
+      </button>
+      <button id="menu-toggle" class="md:hidden text-crypto-orange">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="hidden md:hidden bg-crypto-blue-dark p-4">
+      <a href="index.html" class="block py-2 hover:text-crypto-orange">Home</a>
+      <a href="services.html" class="block py-2 hover:text-crypto-orange">Services</a>
+      <a href="about.html" class="block py-2 hover:text-crypto-orange">About</a>
+      <a href="contact.html" class="block py-2 hover:text-crypto-orange">Contact</a>
+      <a href="faq.html" class="block py-2 hover:text-crypto-orange">FAQ</a>
+      <a href="redeem.html" class="hover:text-crypto-orange">Redeem</a>
+      <button class="mt-2 bg-crypto-orange text-crypto-text px-4 py-2 rounded hover:bg-crypto-orange-dark w-full">
+        Get Started
+      </button>
+    </div>
+  </header>
+
+  <section class="container mx-auto px-4 py-12 text-center">
+    <h2 class="text-3xl font-bold mb-6">Redeem Your Gift Card</h2>
+    <form id="redeem-form" class="max-w-md mx-auto flex flex-col gap-4">
+      <label for="gift-code" class="text-lg">Gift Card Code:</label>
+      <input type="text" id="gift-code" name="giftCode" class="p-2 border border-crypto-orange rounded bg-crypto-blue-dark text-white" required>
+      <button type="submit" class="bg-crypto-orange text-white px-4 py-2 rounded hover:bg-crypto-orange-dark">Redeem</button>
+      <div id="result" class="mt-2"></div>
+    </form>
+  </section>
+
+  <footer class="bg-crypto-blue-dark py-8">
+    <div class="container mx-auto px-4 text-center">
+      <p class="mb-4">© 2025 PEP'JO. All rights reserved.</p>
+      <div class="flex justify-center space-x-6">
+        <a href="#" class="hover:text-crypto-orange">Privacy Policy</a>
+        <a href="#" class="hover:text-crypto-orange">Terms of Service</a>
+        <a href="contact.html" class="hover:text-crypto-orange">Contact Us</a>
+      </div>
+      <div class="mt-4">
+        <a href="https://wa.me/+2348144261207" class="mx-2 text-crypto-orange">WhatsApp</a>
+        <a href="https://t.me/PEP_07" class="mx-2 text-crypto-orange">Telegram</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    menuToggle.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+
+    const redeemForm = document.getElementById('redeem-form');
+    const resultDiv = document.getElementById('result');
+    if (redeemForm) {
+      redeemForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(redeemForm);
+        const data = Object.fromEntries(formData); // Convert FormData to JSON
+        try {
+          const response = await fetch('/api/redeem', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          const result = await response.json();
+          resultDiv.textContent = response.ok ? result.message : `Error: ${result.error}`;
+          resultDiv.style.color = response.ok ? 'green' : 'red';
+        } catch (error) {
+          resultDiv.textContent = 'Error processing redemption. Try again.';
+          resultDiv.style.color = 'red';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

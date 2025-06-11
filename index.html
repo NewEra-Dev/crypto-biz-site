@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PEP'JO - Trade Crypto & Gift Cards</title>
+  <!-- Google Fonts for Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Custom Tailwind Config -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'crypto-blue-dark': '#001A33',
+            'crypto-blue': '#007BFF',
+            'crypto-orange': '#FF5722',
+            'crypto-orange-dark': '#E64A19',
+            'crypto-bg': '#121212',
+            'crypto-text': '#FFFFFF',
+          },
+        },
+      },
+    }
+  </script>
+  <!-- Custom CSS -->
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+    }
+    .hero-bg {
+      background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1622630998477-20aa696ecb05?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+      background-size: cover;
+      background-position: center;
+    }
+  </style>
+</head>
+<body class="bg-crypto-bg text-crypto-text">
+  <!-- Header -->
+  <header class="bg-crypto-blue-dark sticky top-0 z-50">
+    <nav class="container mx-auto flex items-center justify-between p-4">
+      <div class="text-2xl font-bold text-crypto-orange">PEP'JO</div>
+      <div class="hidden md:flex space-x-6">
+        <a href="index.html" class="hover:text-crypto-orange">Home</a>
+        <a href="services.html" class="hover:text-crypto-orange">Services</a>
+        <a href="about.html" class="hover:text-crypto-orange">About</a>
+        <a href="contact.html" class="hover:text-crypto-orange">Contact</a>
+        <a href="faq.html" class="hover:text-crypto-orange">FAQ</a>
+        <a href="redeem.html" class="hover:text-crypto-orange">Redeem</a>
+      </div>
+      <button class="hidden md:block bg-crypto-orange text-crypto-text px-4 py-2 rounded hover:bg-crypto-orange-dark">
+        Get Started
+      </button>
+      <!-- Mobile Menu Button -->
+      <button id="menu-toggle" class="md:hidden text-crypto-orange">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+    </nav>
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden bg-crypto-blue-dark p-4">
+      <a href="index.html" class="block py-2 hover:text-crypto-orange">Home</a>
+      <a href="services.html" class="block py-2 hover:text-crypto-orange">Services</a>
+      <a href="about.html" class="block py-2 hover:text-crypto-orange">About</a>
+      <a href="contact.html" class="block py-2 hover:text-crypto-orange">Contact</a>
+      <a href="faq.html" class="block py-2 hover:text-crypto-orange">FAQ</a>
+      <a href="redeem.html" class="hover:text-crypto-orange">Redeem</a>
+      <button class="mt-2 bg-crypto-orange text-crypto-text px-4 py-2 rounded hover:bg-crypto-orange-dark w-full">
+        Get Started
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-bg h-screen flex items-center justify-center text-center">
+    <div class="container mx-auto px-4">
+      <h1 class="text-4xl md:text-6xl font-bold mb-4">Trade Crypto & Redeem Gift Cards Instantly</h1>
+      <p class="text-lg md:text-xl mb-6">Fast, secure, and hassle-free transactions with PEP'JO.</p>
+      <div class="flex justify-center space-x-4">
+        <button class="bg-crypto-orange text-crypto-text px-6 py-3 rounded hover:bg-crypto-orange-dark">
+          Buy/Sell Crypto
+        </button>
+        <button class="bg-transparent border-2 border-crypto-orange text-crypto-orange px-6 py-3 rounded hover:bg-crypto-orange hover:text-crypto-text">
+          Redeem Gift Cards
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- After hero section -->
+  <section class="py-8 bg-crypto-blue-dark">
+    <div class="container mx-auto px-4">
+      <h2 class="text-2xl font-bold text-center mb-4">Live Crypto Prices</h2>
+      <div id="crypto-ticker" class="flex justify-center space-x-4"></div>
+    </div>
+  </section>
+
+  <!-- Trust Signals -->
+  <section class="bg-crypto-blue-dark py-12">
+    <div class="container mx-auto px-4 text-center">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div>
+          <svg class="w-12 h-12 mx-auto mb-4 text-crypto-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0-3.86-3.14-7-7-7s-7 3.14-7 7 3.14 7 7 7 7-3.14 7-7z"></path>
+          </svg>
+          <h3 class="text-xl font-semibold mb-2">Secure Transactions</h3>
+          <p>Your assets are protected with top-tier encryption.</p>
+        </div>
+        <div>
+          <svg class="w-12 h-12 mx-auto mb-4 text-crypto-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+          </svg>
+          <h3 class="text-xl font-semibold mb-2">24/7 Support</h3>
+          <p>Reach us anytime via WhatsApp or email.</p>
+        </div>
+        <div>
+          <svg class="w-12 h-12 mx-auto mb-4 text-crypto-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <h3 class="text-xl font-semibold mb-2">Trusted by Thousands</h3>
+          <p>Join our growing community of satisfied clients.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Overview -->
+  <section class="py-12">
+    <div class="container mx-auto px-4">
+      <h2 class="text-3xl font-bold text-center mb-8">Our Services</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="bg-crypto-blue-dark p-6 rounded-lg text-center">
+          <h3 class="text-xl font-semibold mb-2">Crypto Trading</h3>
+          <p>Buy and sell Bitcoin, Ethereum, and more with ease.</p>
+          <a href="services.html" class="mt-4 inline-block text-crypto-orange hover:underline">Learn More</a>
+        </div>
+        <div class="bg-crypto-blue-dark p-6 rounded-lg text-center">
+          <h3 class="text-xl font-semibold mb-2">Gift Card Redemption</h3>
+          <p>Redeem Amazon, iTunes, and other gift cards for cash.</p>
+          <a href="services.html" class="mt-4 inline-block text-crypto-orange hover:underline">Learn More</a>
+        </div>
+        <div class="bg-crypto-blue-dark p-6 rounded-lg text-center">
+          <h3 class="text-xl font-semibold mb-2">Digital Assets</h3>
+          <p>Explore NFTs, tokens, and other digital assets.</p>
+          <a href="services.html" class="mt-4 inline-block text-crypto-orange hover:underline">Learn More</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trade Section -->
+  <section class="py-12 bg-crypto-blue-dark">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-3xl font-bold mb-6">Trade Cryptocurrencies</h2>
+      <form id="trade-form" class="max-w-md mx-auto flex flex-col gap-4">
+        <label for="trade-type" class="text-lg">Trade Type:</label>
+        <select id="trade-type" name="tradeType" class="p-2 border border-crypto-orange rounded bg-crypto-blue-dark text-white" required>
+          <option value="buy">Buy</option>
+          <option value="sell">Sell</option>
+        </select>
+        <label for="crypto-type" class="text-lg">Cryptocurrency:</label>
+        <select id="crypto-type" name="cryptoType" class="p-2 border border-crypto-orange rounded bg-crypto-blue-dark text-white" required>
+          <option value="bitcoin">Bitcoin (BTC)</option>
+          <option value="ethereum">Ethereum (ETH)</option>
+          <option value="tether">Tether (USDT)</option>
+        </select>
+        <label for="trade-amount" class="text-lg">Amount (USD):</label>
+        <input type="number" id="trade-amount" name="tradeAmount" class="p-2 border border-crypto-orange rounded bg-crypto-blue-dark text-white" min="1" required>
+        <button type="submit" class="bg-crypto-orange text-white px-4 py-2 rounded hover:bg-crypto-orange-dark">Trade</button>
+        <div id="trade-result" class="mt-2"></div>
+      </form>
+      <div id="price-feed" class="mt-4 text-crypto-orange"></div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-crypto-blue-dark py-8">
+    <div class="container mx-auto px-4 text-center">
+      <p class="mb-4">© 2025 PEP'JO. All rights reserved.</p>
+      <div class="flex justify-center space-x-6">
+        <a href="#" class="hover:text-crypto-orange">Privacy Policy</a>
+        <a href="#" class="hover:text-crypto-orange">Terms of Service</a>
+        <a href="contact.html" class="hover:text-crypto-orange">Contact Us</a>
+      </div>
+      <div class="mt-4">
+        <a href="https://wa.me/+2348144261207" class="mx-2 text-crypto-orange">WhatsApp</a>
+        <a href="https://t.me/PEP_07" class="mx-2 text-crypto-orange">Telegram</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    menuToggle.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+
+    const getStartedButtons = document.querySelectorAll('button');
+    getStartedButtons.forEach(button => {
+      if (button.textContent.includes('Get Started')) {
+        button.addEventListener('click', () => alert('Ready to trade? Contact us via WhatsApp or the Contact page!'));
+      }
+    });
+
+    const tradeForm = document.getElementById('trade-form');
+    const tradeResult = document.getElementById('trade-result');
+    const priceFeed = document.getElementById('price-feed');
+
+    // Update prices via server with retry and error handling
+    async function updatePrices() {
+      try {
+        const response = await fetch('/api/prices');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        if (data.bitcoin && data.ethereum && data.tether) {
+          priceFeed.innerHTML = `
+            BTC: $${data.bitcoin.usd} | ETH: $${data.ethereum.usd} | USDT: $${data.tether.usd}
+          `;
+        } else {
+          throw new Error('Invalid price data');
+        }
+      } catch (error) {
+        console.error('Error updating prices:', error);
+        priceFeed.innerHTML = 'Price feed unavailable. Try again later.';
+      }
+    }
+    updatePrices();
+    setInterval(updatePrices, 10000);
+
+    if (tradeForm) {
+      tradeForm.addEventListener('submit', async (e) => {
+        e.preventDefault(); // Ensure this stops page reload
+        const data = {
+          tradeType: document.getElementById('trade-type').value,
+          cryptoType: document.getElementById('crypto-type').value,
+          tradeAmount: parseFloat(document.getElementById('trade-amount').value)
+        };
+        try {
+          const response = await fetch('/api/trade', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          const result = await response.json();
+          tradeResult.textContent = result.message || `Error: ${result.error}`;
+          tradeResult.style.color = response.ok ? 'green' : 'red';
+          if (response.status === 429) {
+            tradeResult.textContent = 'Rate limit exceeded. Retrying in 10 seconds...';
+            setTimeout(() => tradeForm.dispatchEvent(new Event('submit')), 10000);
+          }
+        } catch (error) {
+          console.error('Trade error:', error);
+          tradeResult.textContent = 'Error processing trade. Try again.';
+          tradeResult.style.color = 'red';
+        }
+      });
+    }
+  </script>
+</body>
+</html>
