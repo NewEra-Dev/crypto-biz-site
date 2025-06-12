@@ -14,8 +14,6 @@ const axios = require('axios');
 const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo');
 
-// Rest of your code remains unchanged...
-
 // Connect to MongoDB
 console.log('MONGO_URI from env:', process.env.MONGO_URI);
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/myDatabase')
@@ -43,29 +41,46 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-const users = [];
-const addUser = (username, email, password) => {
-  const hashedPassword = bcrypt.hashSync(password, 10);
-  users.push({ id: users.length + 1, username, email, password: hashedPassword });
-};
-addUser('admin', 'admin@example.com', 'password123'); // Added email
+// Persist Users in MongoDB
+const userSchema = new mongoose.Schema({
+  username: String,
+  email: String,
+  password: String
+});
+const User = mongoose.model('User', userSchema);
 
+const addUser = async (username, email, password) => {
+  const hashedPassword = bcrypt.hashSync(password, 10);
+  const user = new User({ username, email, password: hashedPassword });
+  await user.save();
+  return user;
+};
+
+// Initialize the admin user
+addUser('admin', 'admin@example.com', 'password123').catch(console.error);
+
+// Update LocalStrategy
 passport.use(new LocalStrategy(
   (username, password, done) => {
     console.log('Attempting login with username:', username, 'password:', password);
-    const user = users.find(u => 
-      (u.username === username || u.email === username) && 
-      bcrypt.compareSync(password, u.password)
-    );
-    if (!user) return done(null, false);
-    return done(null, user);
+    User.findOne({ $or: [{ username }, { email: username }] })
+      .then(user => {
+        if (!user || !bcrypt.compareSync(password, user.password)) return done(null, false);
+        return done(null, user);
+      })
+      .catch(err => done(err));
   }
 ));
 
-passport.serializeUser((user, done) => done(null, user.id));
+passport.serializeUser((user, done) => done(null, user._id)); // Use _id from MongoDB
 passport.deserializeUser((id, done) => {
-  const user = users.find(u => u.id === id);
-  done(null, user);
+  console.log('Deserializing user with id:', id);
+  User.findById(id)
+    .then(user => {
+      if (!user) console.log('User not found in DB:', id);
+      done(null, user);
+    })
+    .catch(err => done(err));
 });
 
 // Define routes
@@ -111,11 +126,22 @@ app.post('/signup', (req, res) => {
   if (!username || !email || !password) {
     return res.status(400).send('Username, email, and password are required');
   }
-  if (users.find(u => u.username === username || u.email === email)) {
-    return res.status(400).send('Username or email already exists');
-  }
-  addUser(username, email, password);
-  res.redirect('/login');
+  User.findOne({ $or: [{ username }, { email }] })
+    .then(existingUser => {
+      if (existingUser) {
+        return res.status(400).send('Username or email already exists');
+      }
+      addUser(username, email, password)
+        .then(() => res.redirect('/login'))
+        .catch(err => {
+          console.error('Error adding user:', err);
+          res.status(500).send('Failed to sign up');
+        });
+    })
+    .catch(err => {
+      console.error('Error checking user:', err);
+      res.status(500).send('Failed to sign up');
+    });
 });
 
 app.get('/forgot-password', (req, res) => {
@@ -137,28 +163,34 @@ app.post('/forgot-password', (req, res) => {
   if (!username) {
     return res.status(400).send('Username is required');
   }
-  const user = users.find(u => u.username === username || u.email === username);
-  if (!user) {
-    return res.status(404).send('Username or email not found');
-  }
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: { user: process.env.EMAIL_ADDRESS, pass: process.env.EMAIL_PASSWORD },
-  });
-  const mailOptions = {
-    from: process.env.EMAIL_ADDRESS,
-    to: user.email, // Use user's email
-    subject: 'Password Reset Request',
-    text: `Hi ${username}, a password reset has been requested for your account. For security, please contact support to reset your password. Reply to this email or reach us at +2348144261207 (WhatsApp).`,
-  };
-  transporter.sendMail(mailOptions, (error) => {
-    if (error) {
-      console.error('Error sending reset email:', error);
-      return res.status(500).send('Failed to send reset email');
-    }
-    console.log('Reset email sent successfully');
-    res.send('Password reset email sent. Please check your email or contact support.');
-  });
+  User.findOne({ $or: [{ username }, { email: username }] })
+    .then(user => {
+      if (!user) {
+        return res.status(404).send('Username or email not found');
+      }
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user: process.env.EMAIL_ADDRESS, pass: process.env.EMAIL_PASSWORD },
+      });
+      const mailOptions = {
+        from: process.env.EMAIL_ADDRESS,
+        to: user.email,
+        subject: 'Password Reset Request',
+        text: `Hi ${username}, a password reset has been requested for your account. For security, please contact support to reset your password. Reply to this email or reach us at +2348144261207 (WhatsApp).`,
+      };
+      transporter.sendMail(mailOptions, (error) => {
+        if (error) {
+          console.error('Error sending reset email:', error);
+          return res.status(500).send('Failed to send reset email');
+        }
+        console.log('Reset email sent successfully');
+        res.send('Password reset email sent. Please check your email or contact support.');
+      });
+    })
+    .catch(err => {
+      console.error('Error finding user:', err);
+      res.status(500).send('Failed to process request');
+    });
 });
 
 app.post('/login',
