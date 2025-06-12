@@ -49,6 +49,7 @@ addUser('admin', 'admin@example.com', 'password123'); // Added email
 
 passport.use(new LocalStrategy(
   (username, password, done) => {
+    console.log('Attempting login with username:', username, 'password:', password);
     const user = users.find(u => 
       (u.username === username || u.email === username) && 
       bcrypt.compareSync(password, u.password)
