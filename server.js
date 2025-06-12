@@ -1,20 +1,80 @@
-require('dotenv').config();
 const express = require('express');
+const session = require('express-session');
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const bcrypt = require('bcrypt');
+const fs = require('fs'); // Added for file existence check
+const app = express();
+require('dotenv').config();
 const nodemailer = require('nodemailer');
 const cors = require('cors');
-const axios = require('axios'); // Ensure axios is installed: npm install axios
-
-const app = express();
-const port = 3000;
+const axios = require('axios');
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('.'));
 
-app.get('/redeem', (req, res) => res.sendFile(__dirname + '/redeem.html'));
+app.use(session({
+  secret: 'crypto-biz-2025',
+  resave: false,
+  saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
-// Fetch prices endpoint with retry logic
+const users = [];
+const addUser = (username, password) => {
+  const hashedPassword = bcrypt.hashSync(password, 10);
+  users.push({ id: users.length + 1, username, password: hashedPassword });
+};
+addUser('admin', 'password123');
+
+passport.use(new LocalStrategy(
+  (username, password, done) => {
+    const user = users.find(u => u.username === username);
+    if (!user) return done(null, false);
+    if (!bcrypt.compareSync(password, user.password)) return done(null, false);
+    return done(null, user);
+  }
+));
+
+passport.serializeUser((user, done) => done(null, user.id));
+passport.deserializeUser((id, done) => {
+  const user = users.find(u => u.id === id);
+  done(null, user);
+});
+
+app.get('/login', (req, res) => {
+  console.log('Attempting to serve login.html from:', __dirname + '/login.html');
+  if (fs.existsSync(__dirname + '/login.html')) {
+    console.log('File exists, attempting to send...');
+    res.sendFile(__dirname + '/login.html', (err) => {
+      if (err) {
+        console.error('Error sending file:', err.message);
+        res.status(500).send('Error loading login page: ' + err.message);
+      } else {
+        console.log('File sent successfully');
+      }
+    });
+  } else {
+    console.log('File not found!');
+    res.status(404).send('Login page not found');
+  }
+});
+app.get('/logout', (req, res) => {
+  req.logout(() => res.redirect('/login'));
+});
+
+app.get('/trade', (req, res) => {
+  if (!req.isAuthenticated()) return res.redirect('/login');
+  res.sendFile(__dirname + '/trade.html');
+});
+app.get('/redeem', (req, res) => {
+  if (!req.isAuthenticated()) return res.redirect('/login');
+  res.sendFile(__dirname + '/redeem.html');
+});
+
 app.get('/api/prices', async (req, res) => {
   try {
     const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether&vs_currencies=usd', {
@@ -97,7 +157,7 @@ app.post('/api/trade', async (req, res) => {
       const cryptoAmount = tradeAmount / price;
       resultMessage = `Bought ${cryptoAmount.toFixed(6)} ${cryptoType.toUpperCase()} for $${tradeAmount}!`;
     } else if (tradeType === 'sell') {
-      const cryptoAmount = tradeAmount * price; // Assuming tradeAmount is in crypto units
+      const cryptoAmount = tradeAmount * price;
       resultMessage = `Sold ${tradeAmount} ${cryptoType.toUpperCase()} for $${cryptoAmount.toFixed(2)}!`;
     }
 
@@ -112,4 +172,4 @@ app.post('/api/trade', async (req, res) => {
   }
 });
 
-app.listen(port, () => console.log(`Server running at http://localhost:${port}`));
+app.listen(process.env.PORT || 3000, () => console.log(`Server running at http://localhost:${process.env.PORT || 3000}`));
