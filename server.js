@@ -159,6 +159,12 @@ app.get('/redeem', (req, res) => {
   res.sendFile(__dirname + '/redeem.html');
 });
 
+// Add this after the '/redeem' route
+app.get('/dashboard', (req, res) => {
+  if (!req.isAuthenticated()) return res.redirect('/login');
+  res.sendFile(__dirname + '/dashboard.html');
+});
+
 // API routes with cache to handle 429
 let priceCache = null;
 let lastFetch = 0;
