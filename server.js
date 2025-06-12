@@ -351,4 +351,4 @@ app.post('/api/trade', async (req, res) => {
 // Static middleware
 app.use(express.static('.'));
 
-app.listen(process.env.PORT || 3000, () => console.log(`Server running at http://localhost:${process.env.PORT || 3000}`));
+app.listen(process.env.PORT, () => console.log(`Server running on port ${process.env.PORT}`));
