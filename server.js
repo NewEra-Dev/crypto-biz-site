@@ -30,13 +30,10 @@ const store = MongoStore.create({
   }
 }).on('error', (error) => {
   console.error('MongoStore error:', error);
-});
-
-store.on('connected', () => {
+}).on('connected', async () => {
   console.log('Connected to MongoStore, clearing all sessions');
-  store.client.db().collection('sessions').deleteMany({}).then(() => {
-    console.log('All sessions cleared, starting fresh');
-  }).catch(err => console.error('Session clear error:', err));
+  await store.client.db().collection('sessions').deleteMany({});
+  console.log('All sessions cleared, starting fresh');
 });
 
 app.use(session({
@@ -87,7 +84,7 @@ passport.serializeUser((user, done) => {
 });
 passport.deserializeUser((id, done) => {
   console.log('Deserializing user with id:', id);
-  User.findById(id)
+  User.findById(id.toString()) // Ensure id is treated as a string
     .then(user => {
       if (!user) console.log('User not found in DB:', id);
       done(null, user);
@@ -95,13 +92,6 @@ passport.deserializeUser((id, done) => {
     .catch(err => done(err));
 });
 
-// Add after store definition
-store.on('connected', () => {
-  console.log('Connected to MongoStore, clearing all sessions');
-  store.client.db().collection('sessions').deleteMany({}).then(() => {
-    console.log('All sessions cleared, starting fresh');
-  }).catch(err => console.error('Session clear error:', err));
-});
 // Define routes
 app.get('/', (req, res) => {
   console.log('Checking authentication for / route, isAuthenticated:', req.isAuthenticated());
