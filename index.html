@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -197,72 +196,87 @@
     </div>
   </footer>
 
-  <script>
-    // Price Update with Retry
-    async function updatePrices() {
-      try {
-        const response = await fetch('/api/prices');
-        const data = await response.json();
+<script>
+  // Price Update with Better Error Handling
+  async function updatePrices() {
+    try {
+      const response = await fetch('/api/prices');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data && data.bitcoin && data.bitcoin.usd !== undefined) {
         document.getElementById('crypto-ticker').innerHTML = `
           <div class="text-center"><p class="text-crypto-orange">BTC: $${data.bitcoin.usd}</p></div>
           <div class="text-center"><p class="text-crypto-orange">ETH: $${data.ethereum.usd}</p></div>
           <div class="text-center"><p class="text-crypto-orange">USDT: $${data.tether.usd}</p></div>
         `;
         document.getElementById('price-feed').textContent = `Latest Prices Updated`;
-      } catch (error) {
-        console.error('Error updating prices:', error);
-        document.getElementById('crypto-ticker').innerHTML = 'Price feed unavailable. Using cached data.';
-        document.getElementById('price-feed').textContent = `Error: ${error.message} (Cached prices may be used)`;
-        if (error.status === 429) {
-          setTimeout(updatePrices, 10000); // Retry after 10 seconds
-        }
+      } else {
+        throw new Error('Invalid price data format');
+      }
+    } catch (error) {
+      console.error('Error updating prices:', error.message);
+      document.getElementById('crypto-ticker').innerHTML = 'Price feed unavailable. Using cached data.';
+      document.getElementById('price-feed').textContent = `Error: ${error.message} (Cached prices may be used)`;
+      if (error.message.includes('429')) {
+        console.warn('Rate limit hit, slowing down requests. Next update in 5 minutes.');
+        // No immediate retry to avoid stacking requests
       }
     }
-    updatePrices();
-    setInterval(updatePrices, 10000);
+  }
 
-    const menuToggle = document.getElementById('menu-toggle');
-    const mobileMenu = document.getElementById('mobile-menu');
+  // Poll every 5 minutes (300000 ms) to stay within rate limits
+  setInterval(updatePrices, 300000);
+  updatePrices(); // Initial call
+
+  // Mobile Menu Toggle
+  const menuToggle = document.getElementById('menu-toggle');
+  const mobileMenu = document.getElementById('mobile-menu');
+  if (menuToggle && mobileMenu) {
     menuToggle.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+  }
 
-    const getStartedButtons = document.querySelectorAll('button');
-    getStartedButtons.forEach(button => {
-      if (button.textContent.includes('Get Started')) {
-        button.addEventListener('click', () => alert('Ready to trade? Contact us via WhatsApp or the Contact page!'));
+  // Get Started Button Alert
+  const getStartedButtons = document.querySelectorAll('button');
+  getStartedButtons.forEach(button => {
+    if (button.textContent.includes('Get Started')) {
+      button.addEventListener('click', () => alert('Ready to trade? Contact us via WhatsApp or the Contact page!'));
+    }
+  });
+
+  // Trade Form Submission
+  const tradeForm = document.getElementById('trade-form');
+  const tradeResult = document.getElementById('trade-result');
+  const priceFeed = document.getElementById('price-feed');
+
+  if (tradeForm) {
+    tradeForm.addEventListener('submit', async (e) => {
+      e.preventDefault(); // Prevent page reload
+      const data = {
+        tradeType: document.getElementById('trade-type').value,
+        cryptoType: document.getElementById('crypto-type').value,
+        tradeAmount: parseFloat(document.getElementById('trade-amount').value)
+      };
+      try {
+        const response = await fetch('/api/trade', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await response.json();
+        tradeResult.textContent = result.message || `Error: ${result.error}`;
+        tradeResult.style.color = response.ok ? 'green' : 'red';
+        if (response.status === 429) {
+          tradeResult.textContent = 'Rate limit exceeded. Retrying in 10 seconds...';
+          setTimeout(() => tradeForm.dispatchEvent(new Event('submit')), 10000);
+        }
+      } catch (error) {
+        tradeResult.textContent = 'Error processing trade. Try again.';
+        tradeResult.style.color = 'red';
       }
     });
-
-    const tradeForm = document.getElementById('trade-form');
-    const tradeResult = document.getElementById('trade-result');
-    const priceFeed = document.getElementById('price-feed');
-
-    if (tradeForm) {
-      tradeForm.addEventListener('submit', async (e) => {
-        e.preventDefault(); // Prevent page reload
-        const data = {
-          tradeType: document.getElementById('trade-type').value,
-          cryptoType: document.getElementById('crypto-type').value,
-          tradeAmount: parseFloat(document.getElementById('trade-amount').value)
-        };
-        try {
-          const response = await fetch('/api/trade', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-          });
-          const result = await response.json();
-          tradeResult.textContent = result.message || `Error: ${result.error}`;
-          tradeResult.style.color = response.ok ? 'green' : 'red';
-          if (response.status === 429) {
-            tradeResult.textContent = 'Rate limit exceeded. Retrying in 10 seconds...';
-            setTimeout(() => tradeForm.dispatchEvent(new Event('submit')), 10000);
-          }
-        } catch (error) {
-          tradeResult.textContent = 'Error processing trade. Try again.';
-          tradeResult.style.color = 'red';
-        }
-      });
-    }
-  </script>
+  }
+</script>
 </body>
-</html>
+</html>CTYPE html>

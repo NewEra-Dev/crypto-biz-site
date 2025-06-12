@@ -11,6 +11,7 @@ const nodemailer = require('nodemailer'); // Add nodemailer for emails
 require('dotenv').config();
 const app = express();
 app.use(express.urlencoded({ extended: true })); // For form parsing
+app.use(express.json()); // For JSON body parsing
 
 console.log('MONGO_URI:', process.env.MONGO_URI);
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/myDatabase')
@@ -140,7 +141,7 @@ app.get('/logout', (req, res) => {
 // API route for prices
 let priceCache = null;
 let lastFetch = 0;
-const CACHE_DURATION = 60000; // 1 minute cache
+const CACHE_DURATION = 300000; // 5 minutes cache
 let lastPrices = null;
 
 app.get('/api/prices', async (req, res) => {
@@ -308,6 +309,20 @@ app.post('/api/redeem', (req, res) => {
   } else {
     res.status(400).json({ success: false, error: 'Invalid gift card code.' });
   }
+});
+
+// API route for trade
+app.post('/api/trade', (req, res) => {
+  console.log('Trade request received:', req.body);
+  const { tradeType, cryptoType, tradeAmount } = req.body;
+  if (!tradeType || !cryptoType || !tradeAmount || tradeAmount <= 0) {
+    return res.status(400).json({ error: 'Invalid trade parameters' });
+  }
+  // Simulate a trade (in a real app, this would interact with a wallet or exchange)
+  res.json({
+    success: true,
+    message: `${tradeType === 'buy' ? 'Bought' : 'Sold'} ${tradeAmount} ${cryptoType.toUpperCase()} successfully!`
+  });
 });
 
 console.log('App started successfully');
