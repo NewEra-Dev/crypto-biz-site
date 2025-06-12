@@ -83,11 +83,11 @@
 <body>
   <div class="login-container">
     <h2>Login</h2>
-<form action="/login" method="post">
-  <input type="text" name="username" placeholder="Username or Email">
-  <input type="password" name="password" placeholder="Password">
-  <button type="submit">Login</button>
-</form>
+    <form action="/login" method="post" onsubmit="console.log('Form submitted with:', this.username.value, this.password.value);">
+      <input type="text" name="username" placeholder="Username or Email">
+      <input type="password" name="password" placeholder="Password">
+      <button type="submit">Login</button>
+    </form>
     <p class="text-center mt-4">Don't have an account? <a href="/signup" class="text-crypto-orange underline">Sign Up</a></p>
     <p class="text-center mt-2"><a href="/forgot-password" class="text-crypto-orange underline">Forgot Password?</a></p>
   </div>
