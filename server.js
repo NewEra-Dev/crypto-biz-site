@@ -6,20 +6,33 @@ const bcrypt = require('bcrypt');
 const fs = require('fs'); // Ensure this is included
 const app = express();
 require('dotenv').config();
+console.log('MONGO_URI:', process.env.MONGO_URI); // Debug line
 const nodemailer = require('nodemailer');
 const cors = require('cors');
 const axios = require('axios');
+const mongoose = require('mongoose');
+const MongoStore = require('connect-mongo');
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
-// Session and Passport setup (before routes)
+// Session setup with MongoDB store
+const store = MongoStore.create({
+  mongoUrl: process.env.MONGO_URI,
+  ttl: 14 * 24 * 60 * 60, // Session TTL: 14 days
+  autoRemove: 'native', // Automatically remove expired sessions
+  crypto: {
+    secret: 'crypto-biz-2025' // Use the same secret as session
+  }
+});
+
 app.use(session({
   secret: 'crypto-biz-2025',
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  store: store
 }));
 app.use(passport.initialize());
 app.use(passport.session());
