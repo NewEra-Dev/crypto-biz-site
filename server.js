@@ -3,6 +3,7 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcrypt');
+const fs = require('fs'); // Re-added fs module
 const MongoStore = require('connect-mongo');
 const mongoose = require('mongoose');
 require('dotenv').config();
