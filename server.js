@@ -7,6 +7,7 @@ const fs = require('fs'); // Ensure fs is included
 const MongoStore = require('connect-mongo');
 const mongoose = require('mongoose');
 const axios = require('axios'); // Add axios for price API
+const nodemailer = require('nodemailer'); // Add nodemailer for emails
 require('dotenv').config();
 const app = express();
 app.use(express.urlencoded({ extended: true })); // For form parsing
@@ -99,7 +100,7 @@ app.use(express.static('.'));
 app.get('/', (req, res) => {
   console.log('Checking authentication for / route, isAuthenticated:', req.isAuthenticated());
   if (req.isAuthenticated()) {
-    res.send('Logged in successfully!');
+    res.sendFile(__dirname + '/index.html');
   } else {
     res.redirect('/login');
   }
@@ -283,6 +284,30 @@ app.get('/redeem', (req, res) => {
 app.get('/dashboard', (req, res) => {
   if (!req.isAuthenticated()) return res.redirect('/login');
   res.sendFile(__dirname + '/dashboard.html');
+});
+
+// API route for redeem
+app.post('/api/redeem', (req, res) => {
+  console.log('Received body:', req.body);
+  const { giftCode } = req.body || {};
+  const validCodes = {
+    'GC123-XYZ789': { amount: 50, used: false },
+    'GC456-ABC123': { amount: 25, used: false },
+    'GC789-DEF456': { amount: 100, used: false },
+    'GC101-JKL789': { amount: 75, used: false },
+    'GC202-MNO123': { amount: 30, used: false },
+    'GC303-PQR456': { amount: 150, used: false }
+  };
+  if (validCodes[giftCode]) {
+    if (!validCodes[giftCode].used) {
+      validCodes[giftCode].used = true;
+      res.json({ success: true, message: `Redeemed $${validCodes[giftCode].amount}!` });
+    } else {
+      res.status(400).json({ success: false, error: 'Code already used.' });
+    }
+  } else {
+    res.status(400).json({ success: false, error: 'Invalid gift card code.' });
+  }
 });
 
 console.log('App started successfully');
