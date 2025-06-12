@@ -70,18 +70,26 @@
     .login-container button:hover {
       background: #E64A19;
     }
+    .login-container p {
+      text-align: center;
+      margin-top: 1rem;
+    }
+    .login-container a {
+      color: #FF5722;
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
   <div class="login-container">
-  <h2>Login</h2>
-  <form action="/login" method="post">
-    <input type="text" name="username" placeholder="Username" required>
-    <input type="password" name="password" placeholder="Password" required>
-    <button type="submit">Login</button>
-  </form>
-  <p class="text-center mt-4">Don't have an account? <a href="/signup" class="text-crypto-orange underline">Sign Up</a></p>
-  <p class="text-center mt-2"><a href="/forgot-password" class="text-crypto-orange underline">Forgot Password?</a></p>
-</div>
+    <h2>Login</h2>
+<form action="/login" method="post">
+  <input type="text" name="username" placeholder="Username or Email">
+  <input type="password" name="password" placeholder="Password">
+  <button type="submit">Login</button>
+</form>
+    <p class="text-center mt-4">Don't have an account? <a href="/signup" class="text-crypto-orange underline">Sign Up</a></p>
+    <p class="text-center mt-2"><a href="/forgot-password" class="text-crypto-orange underline">Forgot Password?</a></p>
+  </div>
 </body>
 </html>
