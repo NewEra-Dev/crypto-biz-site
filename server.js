@@ -159,16 +159,16 @@ app.get('/redeem', (req, res) => {
   res.sendFile(__dirname + '/redeem.html');
 });
 
-// Add this after the '/redeem' route
 app.get('/dashboard', (req, res) => {
   if (!req.isAuthenticated()) return res.redirect('/login');
   res.sendFile(__dirname + '/dashboard.html');
 });
 
-// API routes with cache to handle 429
+// API routes with cache to handle 429 and price change detection
 let priceCache = null;
 let lastFetch = 0;
 const CACHE_DURATION = 60000; // 1 minute cache
+let lastPrices = null; // Track previous prices for change detection
 
 app.get('/api/prices', async (req, res) => {
   const now = Date.now();
@@ -181,6 +181,24 @@ app.get('/api/prices', async (req, res) => {
     });
     priceCache = response.data;
     lastFetch = now;
+
+    // Detect price changes (5% threshold)
+    if (lastPrices) {
+      const changes = {};
+      for (let crypto of ['bitcoin', 'ethereum', 'tether']) {
+        const oldPrice = lastPrices[crypto]?.usd || priceCache[crypto].usd;
+        const newPrice = priceCache[crypto].usd;
+        const percentageChange = ((newPrice - oldPrice) / oldPrice) * 100;
+        if (Math.abs(percentageChange) >= 5) {
+          changes[crypto] = { old: oldPrice, new: newPrice, change: percentageChange.toFixed(2) };
+        }
+      }
+      if (Object.keys(changes).length > 0) {
+        console.log('Significant price changes detected:', changes);
+        // In a real app, you might push this to WebSocket or save for notifications
+      }
+    }
+    lastPrices = { ...priceCache };
     res.json(priceCache);
   } catch (error) {
     console.error('Error fetching prices:', error.response?.status, error.response?.statusText);
@@ -192,6 +210,26 @@ app.get('/api/prices', async (req, res) => {
       res.status(500).json({ error: 'Failed to fetch prices.' });
     }
   }
+});
+
+app.get('/api/notifications', (req, res) => {
+  if (!lastPrices || !priceCache) {
+    return res.json({ notifications: [] });
+  }
+  const changes = {};
+  for (let crypto of ['bitcoin', 'ethereum', 'tether']) {
+    const oldPrice = lastPrices[crypto]?.usd || priceCache[crypto].usd;
+    const newPrice = priceCache[crypto].usd;
+    const percentageChange = ((newPrice - oldPrice) / oldPrice) * 100;
+    if (Math.abs(percentageChange) >= 5) {
+      changes[crypto] = { old: oldPrice, new: newPrice, change: percentageChange.toFixed(2) };
+    }
+  }
+  const notifications = Object.keys(changes).map(crypto => ({
+    message: `${crypto.toUpperCase()} price changed by ${changes[crypto].change}% ($${changes[crypto].old} to $${changes[crypto].new})`,
+    timestamp: new Date().toISOString()
+  }));
+  res.json({ notifications });
 });
 
 app.post('/api/redeem', (req, res) => {
