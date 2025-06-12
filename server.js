@@ -33,8 +33,10 @@ const store = MongoStore.create({
 });
 
 store.on('connected', () => {
-  console.log('Connected to MongoStore, clearing old sessions');
-  store.client.db().collection('sessions').deleteMany({}).then(() => console.log('Old sessions cleared'));
+  console.log('Connected to MongoStore, clearing all sessions');
+  store.client.db().collection('sessions').deleteMany({}).then(() => {
+    console.log('All sessions cleared, starting fresh');
+  }).catch(err => console.error('Session clear error:', err));
 });
 
 app.use(session({
@@ -79,7 +81,10 @@ passport.use(new LocalStrategy(
   }
 ));
 
-passport.serializeUser((user, done) => done(null, user._id.toString())); // Convert _id to string
+passport.serializeUser((user, done) => {
+  console.log('Serializing user with _id:', user._id.toString());
+  done(null, user._id.toString());
+});
 passport.deserializeUser((id, done) => {
   console.log('Deserializing user with id:', id);
   User.findById(id)
@@ -90,6 +95,13 @@ passport.deserializeUser((id, done) => {
     .catch(err => done(err));
 });
 
+// Add after store definition
+store.on('connected', () => {
+  console.log('Connected to MongoStore, clearing all sessions');
+  store.client.db().collection('sessions').deleteMany({}).then(() => {
+    console.log('All sessions cleared, starting fresh');
+  }).catch(err => console.error('Session clear error:', err));
+});
 // Define routes
 app.get('/', (req, res) => {
   console.log('Checking authentication for / route, isAuthenticated:', req.isAuthenticated());
