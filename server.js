@@ -14,7 +14,9 @@ const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo');
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/myDatabase')  .then(() => console.log('Connected to MongoDB'))
+console.log('MONGO_URI from env:', process.env.MONGO_URI);
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/myDatabase')
+  .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
 // Session setup with MongoDB store
@@ -25,6 +27,8 @@ const store = MongoStore.create({
   crypto: {
     secret: 'crypto-biz-2025' // Use the same secret as session
   }
+}).on('error', (error) => {
+  console.error('MongoStore error:', error);
 });
 
 app.use(session({
@@ -158,7 +162,10 @@ app.post('/login',
 );
 
 app.get('/logout', (req, res) => {
-  req.logout(() => res.redirect('/login'));
+  req.logout((err) => {
+    if (err) console.error('Logout error:', err);
+    res.redirect('/login');
+  });
 });
 
 app.get('/trade', (req, res) => {
