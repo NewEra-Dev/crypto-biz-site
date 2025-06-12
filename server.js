@@ -24,8 +24,8 @@ const store = MongoStore.create({
   console.error('MongoStore error:', error);
 }).on('connected', async () => {
   console.log('Connected to MongoStore, clearing all sessions');
-  await store.client.db().collection('sessions').deleteMany({});
-  console.log('All sessions cleared, starting fresh');
+  const result = await store.client.db().collection('sessions').deleteMany({});
+  console.log('Cleared sessions count:', result.deletedCount);
 });
 
 app.use(session({
@@ -76,7 +76,12 @@ passport.serializeUser((user, done) => {
 });
 passport.deserializeUser((id, done) => {
   console.log('Deserializing user with id:', id);
-  User.findById(id.toString())
+  // Check if id is a valid ObjectId
+  if (!/^[0-9a-fA-F]{24}$/.test(id)) {
+    console.log('Invalid ObjectId, skipping deserialization:', id);
+    return done(null, null); // Skip if not a valid ObjectId
+  }
+  User.findById(id)
     .then(user => {
       if (!user) console.log('User not found in DB:', id);
       done(null, user);
