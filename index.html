@@ -39,40 +39,45 @@
 </head>
 <body class="bg-crypto-bg text-crypto-text">
   <!-- Header -->
-  <header class="bg-crypto-blue-dark sticky top-0 z-50">
-    <nav class="container mx-auto flex items-center justify-between p-4">
-      <div class="text-2xl font-bold text-crypto-orange">PEP'JO</div>
-      <div class="hidden md:flex space-x-6">
-        <a href="index.html" class="hover:text-crypto-orange">Home</a>
-        <a href="services.html" class="hover:text-crypto-orange">Services</a>
-        <a href="about.html" class="hover:text-crypto-orange">About</a>
-        <a href="contact.html" class="hover:text-crypto-orange">Contact</a>
-        <a href="faq.html" class="hover:text-crypto-orange">FAQ</a>
-        <a href="redeem.html" class="hover:text-crypto-orange">Redeem</a>
-      </div>
+  <!-- Header -->
+<header class="bg-crypto-blue-dark sticky top-0 z-50">
+  <nav class="container mx-auto flex items-center justify-between p-4">
+    <div class="text-2xl font-bold text-crypto-orange">PEP'JO</div>
+    <div class="hidden md:flex space-x-6">
+      <a href="index.html" class="hover:text-crypto-orange">Home</a>
+      <a href="services.html" class="hover:text-crypto-orange">Services</a>
+      <a href="about.html" class="hover:text-crypto-orange">About</a>
+      <a href="contact.html" class="hover:text-crypto-orange">Contact</a>
+      <a href="faq.html" class="hover:text-crypto-orange">FAQ</a>
+      <a href="redeem.html" class="hover:text-crypto-orange">Redeem</a>
+    </div>
+    <div class="flex space-x-4">
       <button class="hidden md:block bg-crypto-orange text-crypto-text px-4 py-2 rounded hover:bg-crypto-orange-dark">
         Get Started
       </button>
-      <!-- Mobile Menu Button -->
-      <button id="menu-toggle" class="md:hidden text-crypto-orange">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-        </svg>
-      </button>
-    </nav>
-    <!-- Mobile Menu -->
-    <div id="mobile-menu" class="hidden md:hidden bg-crypto-blue-dark p-4">
-      <a href="index.html" class="block py-2 hover:text-crypto-orange">Home</a>
-      <a href="services.html" class="block py-2 hover:text-crypto-orange">Services</a>
-      <a href="about.html" class="block py-2 hover:text-crypto-orange">About</a>
-      <a href="contact.html" class="block py-2 hover:text-crypto-orange">Contact</a>
-      <a href="faq.html" class="block py-2 hover:text-crypto-orange">FAQ</a>
-      <a href="redeem.html" class="hover:text-crypto-orange">Redeem</a>
-      <button class="mt-2 bg-crypto-orange text-crypto-text px-4 py-2 rounded hover:bg-crypto-orange-dark w-full">
-        Get Started
-      </button>
+      <a href="/logout" class="hidden md:block bg-crypto-orange-dark text-crypto-text px-4 py-2 rounded hover:bg-crypto-orange">Logout</a>
     </div>
-  </header>
+    <!-- Mobile Menu Button -->
+    <button id="menu-toggle" class="md:hidden text-crypto-orange">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
+  </nav>
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="hidden md:hidden bg-crypto-blue-dark p-4">
+    <a href="index.html" class="block py-2 hover:text-crypto-orange">Home</a>
+    <a href="services.html" class="block py-2 hover:text-crypto-orange">Services</a>
+    <a href="about.html" class="block py-2 hover:text-crypto-orange">About</a>
+    <a href="contact.html" class="block py-2 hover:text-crypto-orange">Contact</a>
+    <a href="faq.html" class="block py-2 hover:text-crypto-orange">FAQ</a>
+    <a href="redeem.html" class="hover:text-crypto-orange">Redeem</a>
+    <button class="mt-2 bg-crypto-orange text-crypto-text px-4 py-2 rounded hover:bg-crypto-orange-dark w-full">
+      Get Started
+    </button>
+    <a href="/logout" class="mt-2 block bg-crypto-orange-dark text-crypto-text px-4 py-2 rounded hover:bg-crypto-orange w-full text-center">Logout</a>
+  </div>
+</header>
 
   <!-- Hero Section -->
   <section class="hero-bg h-screen flex items-center justify-center text-center">
