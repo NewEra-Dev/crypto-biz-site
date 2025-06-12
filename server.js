@@ -3,7 +3,7 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcrypt');
-const fs = require('fs'); // Added for file existence check
+const fs = require('fs'); // Ensure this is included
 const app = express();
 require('dotenv').config();
 const nodemailer = require('nodemailer');
@@ -14,6 +14,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('.'));
+
+// Default redirect to login
+app.get('/', (req, res) => res.redirect('/login'));
 
 app.use(session({
   secret: 'crypto-biz-2025',
@@ -46,22 +49,22 @@ passport.deserializeUser((id, done) => {
 });
 
 app.get('/login', (req, res) => {
-  console.log('Attempting to serve login.html from:', __dirname + '/login.html');
+  console.log('Hit /login route, attempting to serve login.html from:', __dirname + '/login.html');
   if (fs.existsSync(__dirname + '/login.html')) {
-    console.log('File exists, attempting to send...');
+    console.log('File exists, sending...');
     res.sendFile(__dirname + '/login.html', (err) => {
-      if (err) {
-        console.error('Error sending file:', err.message);
-        res.status(500).send('Error loading login page: ' + err.message);
-      } else {
-        console.log('File sent successfully');
-      }
+      if (err) console.error('Error sending file:', err.message);
+      else console.log('File sent successfully');
     });
   } else {
     console.log('File not found!');
     res.status(404).send('Login page not found');
   }
 });
+app.post('/login',
+  passport.authenticate('local', { failureRedirect: '/login' }),
+  (req, res) => res.redirect('/trade')
+);
 app.get('/logout', (req, res) => {
   req.logout(() => res.redirect('/login'));
 });
