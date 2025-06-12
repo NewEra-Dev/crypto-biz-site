@@ -6,9 +6,10 @@ const bcrypt = require('bcrypt');
 const fs = require('fs'); // Ensure fs is included
 const MongoStore = require('connect-mongo');
 const mongoose = require('mongoose');
+const axios = require('axios'); // Add axios for price API
 require('dotenv').config();
 const app = express();
-app.use(express.urlencoded({ extended: true })); // Added for form parsing
+app.use(express.urlencoded({ extended: true })); // For form parsing
 
 console.log('MONGO_URI:', process.env.MONGO_URI);
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/myDatabase')
@@ -133,6 +134,155 @@ app.get('/logout', (req, res) => {
     else console.log('Logout successful');
     res.redirect('/login');
   });
+});
+
+// API route for prices
+let priceCache = null;
+let lastFetch = 0;
+const CACHE_DURATION = 60000; // 1 minute cache
+let lastPrices = null;
+
+app.get('/api/prices', async (req, res) => {
+  const now = Date.now();
+  if (priceCache && (now - lastFetch < CACHE_DURATION)) {
+    return res.json(priceCache);
+  }
+  try {
+    const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether&vs_currencies=usd', {
+      headers: { 'accept': 'application/json' }
+    });
+    priceCache = response.data;
+    lastFetch = now;
+
+    if (lastPrices) {
+      const changes = {};
+      for (let crypto of ['bitcoin', 'ethereum', 'tether']) {
+        const oldPrice = lastPrices[crypto]?.usd || priceCache[crypto].usd;
+        const newPrice = priceCache[crypto].usd;
+        const percentageChange = ((newPrice - oldPrice) / oldPrice) * 100;
+        if (Math.abs(percentageChange) >= 5) {
+          changes[crypto] = { old: oldPrice, new: newPrice, change: percentageChange.toFixed(2) };
+        }
+      }
+      if (Object.keys(changes).length > 0) {
+        console.log('Significant price changes detected:', changes);
+      }
+    }
+    lastPrices = { ...priceCache };
+    res.json(priceCache);
+  } catch (error) {
+    console.error('Error fetching prices:', error.response?.status, error.response?.statusText);
+    if (priceCache) {
+      res.json(priceCache);
+    } else if (error.response?.status === 429) {
+      res.status(429).json({ error: 'Rate limit exceeded. Using cached data if available.' });
+    } else {
+      res.status(500).json({ error: 'Failed to fetch prices.' });
+    }
+  }
+});
+
+// Additional routes
+app.get('/signup', (req, res) => {
+  console.log('Hit /signup route, attempting to serve signup.html from:', __dirname + '/signup.html');
+  if (fs.existsSync(__dirname + '/signup.html')) {
+    console.log('File exists, sending...');
+    res.sendFile(__dirname + '/signup.html', (err) => {
+      if (err) console.error('Error sending file:', err.message);
+      else console.log('File sent successfully');
+    });
+  } else {
+    console.log('File not found!');
+    res.status(404).send('Signup page not found');
+  }
+});
+
+app.post('/signup', (req, res) => {
+  console.log('Signup attempt with body:', req.body);
+  const { username, email, password } = req.body;
+  if (!username || !email || !password) {
+    return res.status(400).send('Username, email, and password are required');
+  }
+  User.findOne({ $or: [{ username }, { email }] })
+    .then(existingUser => {
+      if (existingUser) {
+        return res.status(400).send('Username or email already exists');
+      }
+      addUser(username, email, password)
+        .then(() => res.redirect('/login'))
+        .catch(err => {
+          console.error('Error adding user:', err);
+          res.status(500).send('Failed to sign up');
+        });
+    })
+    .catch(err => {
+      console.error('Error checking user:', err);
+      res.status(500).send('Failed to sign up');
+    });
+});
+
+app.get('/forgot-password', (req, res) => {
+  console.log('Hit /forgot-password route, attempting to serve forgot-password.html from:', __dirname + '/forgot-password.html');
+  if (fs.existsSync(__dirname + '/forgot-password.html')) {
+    console.log('File exists, sending...');
+    res.sendFile(__dirname + '/forgot-password.html', (err) => {
+      if (err) console.error('Error sending file:', err.message);
+      else console.log('File sent successfully');
+    });
+  } else {
+    console.log('File not found!');
+    res.status(404).send('Forgot password page not found');
+  }
+});
+
+app.post('/forgot-password', (req, res) => {
+  const { username } = req.body;
+  if (!username) {
+    return res.status(400).send('Username is required');
+  }
+  User.findOne({ $or: [{ username }, { email: username }] })
+    .then(user => {
+      if (!user) {
+        return res.status(404).send('Username or email not found');
+      }
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user: process.env.EMAIL_ADDRESS, pass: process.env.EMAIL_PASSWORD },
+      });
+      const mailOptions = {
+        from: process.env.EMAIL_ADDRESS,
+        to: user.email,
+        subject: 'Password Reset Request',
+        text: `Hi ${username}, a password reset has been requested for your account. For security, please contact support to reset your password. Reply to this email or reach us at +2348144261207 (WhatsApp).`,
+      };
+      transporter.sendMail(mailOptions, (error) => {
+        if (error) {
+          console.error('Error sending reset email:', error);
+          return res.status(500).send('Failed to send reset email');
+        }
+        console.log('Reset email sent successfully');
+        res.send('Password reset email sent. Please check your email or contact support.');
+      });
+    })
+    .catch(err => {
+      console.error('Error finding user:', err);
+      res.status(500).send('Failed to process request');
+    });
+});
+
+app.get('/trade', (req, res) => {
+  if (!req.isAuthenticated()) return res.redirect('/login');
+  res.sendFile(__dirname + '/trade.html');
+});
+
+app.get('/redeem', (req, res) => {
+  if (!req.isAuthenticated()) return res.redirect('/login');
+  res.sendFile(__dirname + '/redeem.html');
+});
+
+app.get('/dashboard', (req, res) => {
+  if (!req.isAuthenticated()) return res.redirect('/login');
+  res.sendFile(__dirname + '/dashboard.html');
 });
 
 console.log('App started successfully');
