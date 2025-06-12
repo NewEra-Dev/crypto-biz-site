@@ -8,6 +8,7 @@ const MongoStore = require('connect-mongo');
 const mongoose = require('mongoose');
 require('dotenv').config();
 const app = express();
+app.use(express.urlencoded({ extended: true })); // Added for form parsing
 
 console.log('MONGO_URI:', process.env.MONGO_URI);
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/myDatabase')
