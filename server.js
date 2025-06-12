@@ -85,6 +85,7 @@ passport.deserializeUser((id, done) => {
 
 // Define routes
 app.get('/', (req, res) => {
+  console.log('Checking authentication for / route, isAuthenticated:', req.isAuthenticated());
   if (req.isAuthenticated()) {
     res.sendFile(__dirname + '/index.html');
   } else {
