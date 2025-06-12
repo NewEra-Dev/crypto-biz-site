@@ -10,14 +10,12 @@ const nodemailer = require('nodemailer');
 const cors = require('cors');
 const axios = require('axios');
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('.'));
 
-// Default redirect to login
-app.get('/', (req, res) => res.redirect('/login'));
-
+// Session and Passport setup (before routes)
 app.use(session({
   secret: 'crypto-biz-2025',
   resave: false,
@@ -48,6 +46,15 @@ passport.deserializeUser((id, done) => {
   done(null, user);
 });
 
+// Define routes
+app.get('/', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.sendFile(__dirname + '/index.html');
+  } else {
+    res.redirect('/login');
+  }
+});
+
 app.get('/login', (req, res) => {
   console.log('Hit /login route, attempting to serve login.html from:', __dirname + '/login.html');
   if (fs.existsSync(__dirname + '/login.html')) {
@@ -61,10 +68,11 @@ app.get('/login', (req, res) => {
     res.status(404).send('Login page not found');
   }
 });
+
 app.post('/login',
   passport.authenticate('local', { failureRedirect: '/login' }),
-  (req, res) => res.redirect('/trade')
-);
+  (req, res) => res.redirect('/')); // Redirect to homepage after login
+
 app.get('/logout', (req, res) => {
   req.logout(() => res.redirect('/login'));
 });
@@ -73,11 +81,13 @@ app.get('/trade', (req, res) => {
   if (!req.isAuthenticated()) return res.redirect('/login');
   res.sendFile(__dirname + '/trade.html');
 });
+
 app.get('/redeem', (req, res) => {
   if (!req.isAuthenticated()) return res.redirect('/login');
   res.sendFile(__dirname + '/redeem.html');
 });
 
+// API routes
 app.get('/api/prices', async (req, res) => {
   try {
     const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether&vs_currencies=usd', {
@@ -174,5 +184,8 @@ app.post('/api/trade', async (req, res) => {
     }
   }
 });
+
+// Static middleware
+app.use(express.static('.'));
 
 app.listen(process.env.PORT || 3000, () => console.log(`Server running at http://localhost:${process.env.PORT || 3000}`));
