@@ -32,6 +32,11 @@ const store = MongoStore.create({
   console.error('MongoStore error:', error);
 });
 
+store.on('connected', () => {
+  console.log('Connected to MongoStore, clearing old sessions');
+  store.client.db().collection('sessions').deleteMany({}).then(() => console.log('Old sessions cleared'));
+});
+
 app.use(session({
   secret: 'crypto-biz-2025',
   resave: false,
@@ -74,7 +79,7 @@ passport.use(new LocalStrategy(
   }
 ));
 
-passport.serializeUser((user, done) => done(null, user._id)); // Use _id from MongoDB
+passport.serializeUser((user, done) => done(null, user._id.toString())); // Convert _id to string
 passport.deserializeUser((id, done) => {
   console.log('Deserializing user with id:', id);
   User.findById(id)
