@@ -39,48 +39,47 @@
 </head>
 <body class="bg-crypto-bg text-crypto-text">
   <!-- Header -->
-  <!-- Header -->
-<header class="bg-crypto-blue-dark sticky top-0 z-50">
-  <nav class="container mx-auto flex items-center justify-between p-4">
-    <div class="text-2xl font-bold text-crypto-orange">PEP'JO</div>
-    <div class="hidden md:flex space-x-6">
-      <a href="index.html" class="hover:text-crypto-orange">Home</a>
-      <a href="services.html" class="hover:text-crypto-orange">Services</a>
-      <a href="about.html" class="hover:text-crypto-orange">About</a>
-      <a href="contact.html" class="hover:text-crypto-orange">Contact</a>
-      <a href="faq.html" class="hover:text-crypto-orange">FAQ</a>
+  <header class="bg-crypto-blue-dark sticky top-0 z-50">
+    <nav class="container mx-auto flex items-center justify-between p-4">
+      <div class="text-2xl font-bold text-crypto-orange">PEP'JO</div>
+      <div class="hidden md:flex space-x-6">
+        <a href="index.html" class="hover:text-crypto-orange">Home</a>
+        <a href="services.html" class="hover:text-crypto-orange">Services</a>
+        <a href="about.html" class="hover:text-crypto-orange">About</a>
+        <a href="contact.html" class="hover:text-crypto-orange">Contact</a>
+        <a href="faq.html" class="hover:text-crypto-orange">FAQ</a>
+        <a href="redeem.html" class="hover:text-crypto-orange">Redeem</a>
+      </div>
+      <div class="flex space-x-4">
+        <button class="hidden md:block bg-crypto-orange text-crypto-text px-4 py-2 rounded hover:bg-crypto-orange-dark">
+          Get Started
+        </button>
+        <a href="/logout" class="hidden md:block bg-crypto-orange-dark text-crypto-text px-4 py-2 rounded hover:bg-crypto-orange">Logout</a>
+      </div>
+      <!-- Mobile Menu Button -->
+      <button id="menu-toggle" class="md:hidden text-crypto-orange">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+    </nav>
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden bg-crypto-blue-dark p-4">
+      <a href="index.html" class="block py-2 hover:text-crypto-orange">Home</a>
+      <a href="services.html" class="block py-2 hover:text-crypto-orange">Services</a>
+      <a href="about.html" class="block py-2 hover:text-crypto-orange">About</a>
+      <a href="contact.html" class="block py-2 hover:text-crypto-orange">Contact</a>
+      <a href="faq.html" class="block py-2 hover:text-crypto-orange">FAQ</a>
       <a href="redeem.html" class="hover:text-crypto-orange">Redeem</a>
-    </div>
-    <div class="flex space-x-4">
-      <button class="hidden md:block bg-crypto-orange text-crypto-text px-4 py-2 rounded hover:bg-crypto-orange-dark">
+      <button class="mt-2 bg-crypto-orange text-crypto-text px-4 py-2 rounded hover:bg-crypto-orange-dark w-full">
         Get Started
       </button>
-      <a href="/logout" class="hidden md:block bg-crypto-orange-dark text-crypto-text px-4 py-2 rounded hover:bg-crypto-orange">Logout</a>
+      <a href="/logout" class="mt-2 block bg-crypto-orange-dark text-crypto-text px-4 py-2 rounded hover:bg-crypto-orange w-full text-center">Logout</a>
     </div>
-    <!-- Mobile Menu Button -->
-    <button id="menu-toggle" class="md:hidden text-crypto-orange">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-      </svg>
-    </button>
-  </nav>
-  <!-- Mobile Menu -->
-  <div id="mobile-menu" class="hidden md:hidden bg-crypto-blue-dark p-4">
-    <a href="index.html" class="block py-2 hover:text-crypto-orange">Home</a>
-    <a href="services.html" class="block py-2 hover:text-crypto-orange">Services</a>
-    <a href="about.html" class="block py-2 hover:text-crypto-orange">About</a>
-    <a href="contact.html" class="block py-2 hover:text-crypto-orange">Contact</a>
-    <a href="faq.html" class="block py-2 hover:text-crypto-orange">FAQ</a>
-    <a href="redeem.html" class="hover:text-crypto-orange">Redeem</a>
-    <button class="mt-2 bg-crypto-orange text-crypto-text px-4 py-2 rounded hover:bg-crypto-orange-dark w-full">
-      Get Started
-    </button>
-    <a href="/logout" class="mt-2 block bg-crypto-orange-dark text-crypto-text px-4 py-2 rounded hover:bg-crypto-orange w-full text-center">Logout</a>
-  </div>
-</header>
+  </header>
 
   <!-- Hero Section -->
-  <section class="hero-bg h-screen flex items-center justify-center text-center">
+  <section class="hero-bg min-h-screen flex items-center justify-center text-center">
     <div class="container mx-auto px-4">
       <h1 class="text-4xl md:text-6xl font-bold mb-4">Trade Crypto & Redeem Gift Cards Instantly</h1>
       <p class="text-lg md:text-xl mb-6">Fast, secure, and hassle-free transactions with PEP'JO.</p>
@@ -102,71 +101,6 @@
       <div id="crypto-ticker" class="flex justify-center space-x-4"></div>
     </div>
   </section>
-  <script>
-    // Price Update with Retry
-    async function updatePrices() {
-      try {
-        const response = await fetch('/api/prices');
-        const data = await response.json();
-        document.getElementById('crypto-ticker').innerHTML = `
-          <div class="text-center"><p class="text-crypto-orange">BTC: $${data.bitcoin.usd}</p></div>
-          <div class="text-center"><p class="text-crypto-orange">ETH: $${data.ethereum.usd}</p></div>
-          <div class="text-center"><p class="text-crypto-orange">USDT: $${data.tether.usd}</p></div>
-        `;
-      } catch (error) {
-        console.error('Error updating prices:', error);
-        document.getElementById('crypto-ticker').innerHTML = 'Price feed unavailable. Try again later.';
-        if (error.status === 429) {
-          setTimeout(updatePrices, 10000); // Retry after 10 seconds
-        }
-      }
-    }
-    updatePrices();
-    setInterval(updatePrices, 10000);
-
-    const menuToggle = document.getElementById('menu-toggle');
-    const mobileMenu = document.getElementById('mobile-menu');
-    menuToggle.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
-
-    const getStartedButtons = document.querySelectorAll('button');
-    getStartedButtons.forEach(button => {
-      if (button.textContent.includes('Get Started')) {
-        button.addEventListener('click', () => alert('Ready to trade? Contact us via WhatsApp or the Contact page!'));
-      }
-    });
-
-    const tradeForm = document.getElementById('trade-form');
-    const tradeResult = document.getElementById('trade-result');
-    const priceFeed = document.getElementById('price-feed');
-
-    if (tradeForm) {
-      tradeForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const data = {
-          tradeType: document.getElementById('trade-type').value,
-          cryptoType: document.getElementById('crypto-type').value,
-          tradeAmount: parseFloat(document.getElementById('trade-amount').value)
-        };
-        try {
-          const response = await fetch('/api/trade', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-          });
-          const result = await response.json();
-          tradeResult.textContent = result.message || `Error: ${result.error}`;
-          tradeResult.style.color = response.ok ? 'green' : 'red';
-          if (response.status === 429) {
-            tradeResult.textContent = 'Rate limit exceeded. Retrying in 10 seconds...';
-            setTimeout(() => tradeForm.dispatchEvent(new Event('submit')), 10000);
-          }
-        } catch (error) {
-          tradeResult.textContent = 'Error processing trade. Try again.';
-          tradeResult.style.color = 'red';
-        }
-      });
-    }
-  </script>
 
   <!-- Trust Signals -->
   <section class="bg-crypto-blue-dark py-12">
@@ -222,7 +156,7 @@
   </section>
 
   <!-- Trade Section -->
-  <section class="py-12 bg-crypto-blue-dark">
+  <section class="py-12 bg-crypto-blue-dark" id="trade-section">
     <div class="container mx-auto px-4 text-center">
       <h2 class="text-3xl font-bold mb-6">Trade Cryptocurrencies</h2>
       <form id="trade-form" class="max-w-md mx-auto flex flex-col gap-4">
@@ -261,5 +195,73 @@
       </div>
     </div>
   </footer>
+
+  <script>
+    // Price Update with Retry
+    async function updatePrices() {
+      try {
+        const response = await fetch('/api/prices');
+        const data = await response.json();
+        document.getElementById('crypto-ticker').innerHTML = `
+          <div class="text-center"><p class="text-crypto-orange">BTC: $${data.bitcoin.usd}</p></div>
+          <div class="text-center"><p class="text-crypto-orange">ETH: $${data.ethereum.usd}</p></div>
+          <div class="text-center"><p class="text-crypto-orange">USDT: $${data.tether.usd}</p></div>
+        `;
+        document.getElementById('price-feed').textContent = `Latest Prices Updated`;
+      } catch (error) {
+        console.error('Error updating prices:', error);
+        document.getElementById('crypto-ticker').innerHTML = 'Price feed unavailable. Using cached data.';
+        document.getElementById('price-feed').textContent = `Error: ${error.message} (Cached prices may be used)`;
+        if (error.status === 429) {
+          setTimeout(updatePrices, 10000); // Retry after 10 seconds
+        }
+      }
+    }
+    updatePrices();
+    setInterval(updatePrices, 10000);
+
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    menuToggle.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+
+    const getStartedButtons = document.querySelectorAll('button');
+    getStartedButtons.forEach(button => {
+      if (button.textContent.includes('Get Started')) {
+        button.addEventListener('click', () => alert('Ready to trade? Contact us via WhatsApp or the Contact page!'));
+      }
+    });
+
+    const tradeForm = document.getElementById('trade-form');
+    const tradeResult = document.getElementById('trade-result');
+    const priceFeed = document.getElementById('price-feed');
+
+    if (tradeForm) {
+      tradeForm.addEventListener('submit', async (e) => {
+        e.preventDefault(); // Prevent page reload
+        const data = {
+          tradeType: document.getElementById('trade-type').value,
+          cryptoType: document.getElementById('crypto-type').value,
+          tradeAmount: parseFloat(document.getElementById('trade-amount').value)
+        };
+        try {
+          const response = await fetch('/api/trade', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          const result = await response.json();
+          tradeResult.textContent = result.message || `Error: ${result.error}`;
+          tradeResult.style.color = response.ok ? 'green' : 'red';
+          if (response.status === 429) {
+            tradeResult.textContent = 'Rate limit exceeded. Retrying in 10 seconds...';
+            setTimeout(() => tradeForm.dispatchEvent(new Event('submit')), 10000);
+          }
+        } catch (error) {
+          tradeResult.textContent = 'Error processing trade. Try again.';
+          tradeResult.style.color = 'red';
+        }
+      });
+    }
+  </script>
 </body>
 </html>

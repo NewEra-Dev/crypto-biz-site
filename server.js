@@ -25,17 +25,19 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 const users = [];
-const addUser = (username, password) => {
+const addUser = (username, email, password) => {
   const hashedPassword = bcrypt.hashSync(password, 10);
-  users.push({ id: users.length + 1, username, password: hashedPassword });
+  users.push({ id: users.length + 1, username, email, password: hashedPassword });
 };
-addUser('admin', 'password123');
+addUser('admin', 'admin@example.com', 'password123'); // Added email
 
 passport.use(new LocalStrategy(
   (username, password, done) => {
-    const user = users.find(u => u.username === username);
+    const user = users.find(u => 
+      (u.username === username || u.email === username) && 
+      bcrypt.compareSync(password, u.password)
+    );
     if (!user) return done(null, false);
-    if (!bcrypt.compareSync(password, user.password)) return done(null, false);
     return done(null, user);
   }
 ));
@@ -46,7 +48,6 @@ passport.deserializeUser((id, done) => {
   done(null, user);
 });
 
-// Define routes
 // Define routes
 app.get('/', (req, res) => {
   if (req.isAuthenticated()) {
@@ -85,14 +86,14 @@ app.get('/signup', (req, res) => {
 });
 
 app.post('/signup', (req, res) => {
-  const { username, password } = req.body;
-  if (!username || !password) {
-    return res.status(400).send('Username and password are required');
+  const { username, email, password } = req.body;
+  if (!username || !email || !password) {
+    return res.status(400).send('Username, email, and password are required');
   }
-  if (users.find(u => u.username === username)) {
-    return res.status(400).send('Username already exists');
+  if (users.find(u => u.username === username || u.email === email)) {
+    return res.status(400).send('Username or email already exists');
   }
-  addUser(username, password);
+  addUser(username, email, password);
   res.redirect('/login');
 });
 
@@ -115,18 +116,17 @@ app.post('/forgot-password', (req, res) => {
   if (!username) {
     return res.status(400).send('Username is required');
   }
-  const user = users.find(u => u.username === username);
+  const user = users.find(u => u.username === username || u.email === username);
   if (!user) {
-    return res.status(404).send('Username not found');
+    return res.status(404).send('Username or email not found');
   }
-  // Simulate sending a reset email (in production, generate a unique token and send it)
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: { user: process.env.EMAIL_ADDRESS, pass: process.env.EMAIL_PASSWORD },
   });
   const mailOptions = {
     from: process.env.EMAIL_ADDRESS,
-    to: 'odunayojohn62@gmail.com', // Replace with user's email if stored
+    to: user.email, // Use user's email
     subject: 'Password Reset Request',
     text: `Hi ${username}, a password reset has been requested for your account. For security, please contact support to reset your password. Reply to this email or reach us at +2348144261207 (WhatsApp).`,
   };
@@ -159,17 +159,29 @@ app.get('/redeem', (req, res) => {
   res.sendFile(__dirname + '/redeem.html');
 });
 
-// API routes
+// API routes with cache to handle 429
+let priceCache = null;
+let lastFetch = 0;
+const CACHE_DURATION = 60000; // 1 minute cache
+
 app.get('/api/prices', async (req, res) => {
+  const now = Date.now();
+  if (priceCache && (now - lastFetch < CACHE_DURATION)) {
+    return res.json(priceCache);
+  }
   try {
     const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether&vs_currencies=usd', {
       headers: { 'accept': 'application/json' }
     });
-    res.json(response.data);
+    priceCache = response.data;
+    lastFetch = now;
+    res.json(priceCache);
   } catch (error) {
     console.error('Error fetching prices:', error.response?.status, error.response?.statusText);
-    if (error.response?.status === 429) {
-      res.status(429).json({ error: 'Rate limit exceeded. Please try again later.' });
+    if (priceCache) {
+      res.json(priceCache); // Return cached data on error
+    } else if (error.response?.status === 429) {
+      res.status(429).json({ error: 'Rate limit exceeded. Using cached data if available.' });
     } else {
       res.status(500).json({ error: 'Failed to fetch prices.' });
     }
@@ -249,8 +261,19 @@ app.post('/api/trade', async (req, res) => {
     res.json({ success: true, message: resultMessage });
   } catch (error) {
     console.error('Error fetching prices or trading:', error.response?.status, error.response?.statusText);
-    if (error.response?.status === 429) {
-      res.status(429).json({ error: 'Rate limit exceeded. Please try again later.' });
+    if (priceCache) {
+      const price = priceCache[cryptoType].usd;
+      let resultMessage;
+      if (tradeType === 'buy') {
+        const cryptoAmount = tradeAmount / price;
+        resultMessage = `Bought ${cryptoAmount.toFixed(6)} ${cryptoType.toUpperCase()} for $${tradeAmount}! (Using cached price)`;
+      } else if (tradeType === 'sell') {
+        const cryptoAmount = tradeAmount * price;
+        resultMessage = `Sold ${tradeAmount} ${cryptoType.toUpperCase()} for $${cryptoAmount.toFixed(2)}! (Using cached price)`;
+      }
+      res.json({ success: true, message: resultMessage });
+    } else if (error.response?.status === 429) {
+      res.status(429).json({ error: 'Rate limit exceeded. Using cached data if available.' });
     } else {
       res.status(500).json({ error: 'Failed to process trade.' });
     }
