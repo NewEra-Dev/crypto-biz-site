@@ -1,8 +1,10 @@
 const express = require('express');
 const app = express();
 
+app.use(express.static('.'));
+
 app.get('/', (req, res) => {
-  res.send('Server is running!');
+  res.send('Server is running with static files!');
 });
 
 console.log('App started successfully');
