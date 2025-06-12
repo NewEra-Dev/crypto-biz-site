@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PEP'JO - Login</title>
+  <title>PEP'JO - Sign Up</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Custom Tailwind Config -->
@@ -35,7 +35,7 @@
       justify-content: center;
       align-items: center;
     }
-    .login-container {
+    .signup-container {
       background: rgba(0, 26, 51, 0.9);
       padding: 2rem;
       border-radius: 0.5rem;
@@ -43,12 +43,12 @@
       width: 100%;
       max-width: 400px;
     }
-    .login-container h2 {
+    .signup-container h2 {
       color: #FF5722;
       margin-bottom: 1.5rem;
       text-align: center;
     }
-    .login-container input {
+    .signup-container input {
       width: 100%;
       padding: 0.75rem;
       margin-bottom: 1rem;
@@ -57,7 +57,7 @@
       background: #121212;
       color: #FFFFFF;
     }
-    .login-container button {
+    .signup-container button {
       width: 100%;
       padding: 0.75rem;
       background: #FF5722;
@@ -67,20 +67,28 @@
       cursor: pointer;
       transition: background 0.3s;
     }
-    .login-container button:hover {
+    .signup-container button:hover {
       background: #E64A19;
+    }
+    .signup-container p {
+      text-align: center;
+      margin-top: 1rem;
+    }
+    .signup-container a {
+      color: #FF5722;
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <div class="login-container">
-  <h2>Login</h2>
-  <form action="/login" method="post">
-    <input type="text" name="username" placeholder="Username" required>
-    <input type="password" name="password" placeholder="Password" required>
-    <button type="submit">Login</button>
-  </form>
-  <p class="text-center mt-4">Don't have an account? <a href="/signup" class="text-crypto-orange underline">Sign Up</a></p>
-</div>
+  <div class="signup-container">
+    <h2>Sign Up</h2>
+    <form action="/signup" method="post">
+      <input type="text" name="username" placeholder="Username" required>
+      <input type="password" name="password" placeholder="Password" required>
+      <button type="submit">Sign Up</button>
+    </form>
+    <p>Already have an account? <a href="/login">Login</a></p>
+  </div>
 </body>
 </html>

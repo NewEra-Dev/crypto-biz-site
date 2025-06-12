@@ -69,9 +69,36 @@ app.get('/login', (req, res) => {
   }
 });
 
+app.get('/signup', (req, res) => {
+  console.log('Hit /signup route, attempting to serve signup.html from:', __dirname + '/signup.html');
+  if (fs.existsSync(__dirname + '/signup.html')) {
+    console.log('File exists, sending...');
+    res.sendFile(__dirname + '/signup.html', (err) => {
+      if (err) console.error('Error sending file:', err.message);
+      else console.log('File sent successfully');
+    });
+  } else {
+    console.log('File not found!');
+    res.status(404).send('Signup page not found');
+  }
+});
+
+app.post('/signup', (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).send('Username and password are required');
+  }
+  if (users.find(u => u.username === username)) {
+    return res.status(400).send('Username already exists');
+  }
+  addUser(username, password);
+  res.redirect('/login');
+});
+
 app.post('/login',
   passport.authenticate('local', { failureRedirect: '/login' }),
-  (req, res) => res.redirect('/')); // Redirect to homepage after login
+  (req, res) => res.redirect('/')
+);
 
 app.get('/logout', (req, res) => {
   req.logout(() => res.redirect('/login'));
