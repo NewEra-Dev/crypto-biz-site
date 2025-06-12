@@ -382,5 +382,5 @@ app.post('/api/trade', async (req, res) => {
 
 // Static middleware
 app.use(express.static('.'));
-
+console.log('App started successfully');
 app.listen(process.env.PORT, () => console.log(`Server running on port ${process.env.PORT}`));
