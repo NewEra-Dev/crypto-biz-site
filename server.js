@@ -47,6 +47,7 @@ passport.deserializeUser((id, done) => {
 });
 
 // Define routes
+// Define routes
 app.get('/', (req, res) => {
   if (req.isAuthenticated()) {
     res.sendFile(__dirname + '/index.html');
@@ -93,6 +94,50 @@ app.post('/signup', (req, res) => {
   }
   addUser(username, password);
   res.redirect('/login');
+});
+
+app.get('/forgot-password', (req, res) => {
+  console.log('Hit /forgot-password route, attempting to serve forgot-password.html from:', __dirname + '/forgot-password.html');
+  if (fs.existsSync(__dirname + '/forgot-password.html')) {
+    console.log('File exists, sending...');
+    res.sendFile(__dirname + '/forgot-password.html', (err) => {
+      if (err) console.error('Error sending file:', err.message);
+      else console.log('File sent successfully');
+    });
+  } else {
+    console.log('File not found!');
+    res.status(404).send('Forgot password page not found');
+  }
+});
+
+app.post('/forgot-password', (req, res) => {
+  const { username } = req.body;
+  if (!username) {
+    return res.status(400).send('Username is required');
+  }
+  const user = users.find(u => u.username === username);
+  if (!user) {
+    return res.status(404).send('Username not found');
+  }
+  // Simulate sending a reset email (in production, generate a unique token and send it)
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: { user: process.env.EMAIL_ADDRESS, pass: process.env.EMAIL_PASSWORD },
+  });
+  const mailOptions = {
+    from: process.env.EMAIL_ADDRESS,
+    to: 'odunayojohn62@gmail.com', // Replace with user's email if stored
+    subject: 'Password Reset Request',
+    text: `Hi ${username}, a password reset has been requested for your account. For security, please contact support to reset your password. Reply to this email or reach us at +2348144261207 (WhatsApp).`,
+  };
+  transporter.sendMail(mailOptions, (error) => {
+    if (error) {
+      console.error('Error sending reset email:', error);
+      return res.status(500).send('Failed to send reset email');
+    }
+    console.log('Reset email sent successfully');
+    res.send('Password reset email sent. Please check your email or contact support.');
+  });
 });
 
 app.post('/login',
