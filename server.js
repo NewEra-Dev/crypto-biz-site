@@ -5,6 +5,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcrypt');
 const fs = require('fs'); // Ensure this is included
 const app = express();
+app.use(express.urlencoded({ extended: true })); // Add this to parse form data
 require('dotenv').config();
 console.log('MONGO_URI:', process.env.MONGO_URI); // Debug line
 const nodemailer = require('nodemailer');
@@ -12,6 +13,8 @@ const cors = require('cors');
 const axios = require('axios');
 const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo');
+
+// Rest of your code remains unchanged...
 
 // Connect to MongoDB
 console.log('MONGO_URI from env:', process.env.MONGO_URI);
@@ -103,6 +106,7 @@ app.get('/signup', (req, res) => {
 });
 
 app.post('/signup', (req, res) => {
+  console.log('Signup attempt with body:', req.body);
   const { username, email, password } = req.body;
   if (!username || !email || !password) {
     return res.status(400).send('Username, email, and password are required');
