@@ -3,7 +3,7 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcrypt');
-const fs = require('fs'); // Re-added fs module
+const fs = require('fs'); // Ensure fs is included
 const MongoStore = require('connect-mongo');
 const mongoose = require('mongoose');
 require('dotenv').config();
@@ -64,6 +64,8 @@ passport.use(new LocalStrategy(
     console.log('Attempting login with username:', username, 'password:', password);
     User.findOne({ $or: [{ username }, { email: username }] })
       .then(user => {
+        if (!user) console.log('User not found in DB for:', username);
+        else if (!bcrypt.compareSync(password, user.password)) console.log('Password mismatch for:', username);
         if (!user || !bcrypt.compareSync(password, user.password)) return done(null, false);
         return done(null, user);
       })
@@ -118,7 +120,7 @@ app.get('/login', (req, res) => {
 app.post('/login',
   passport.authenticate('local', { failureRedirect: '/login' }),
   (req, res) => {
-    console.log('Login successful, redirecting to /');
+    console.log('Login successful, redirecting to / with user:', req.user?.username);
     res.redirect('/');
   }
 );
