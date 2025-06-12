@@ -56,8 +56,10 @@ const addUser = async (username, email, password) => {
   return user;
 };
 
-// Initialize the admin user
-addUser('admin', 'admin@example.com', 'password123').catch(console.error);
+// Initialize the admin user with debug logging
+addUser('admin', 'admin@example.com', 'password123')
+  .then(() => console.log('Admin user created'))
+  .catch(err => console.error('Admin user creation error:', err));
 
 // Update LocalStrategy
 passport.use(new LocalStrategy(
@@ -383,5 +385,12 @@ app.post('/api/trade', async (req, res) => {
 
 // Static middleware
 app.use(express.static('.'));
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('Global error handler:', err.stack);
+  res.status(500).send('Something went wrong!');
+});
+
 console.log('App started successfully');
 app.listen(process.env.PORT, () => console.log(`Server running on port ${process.env.PORT}`));
