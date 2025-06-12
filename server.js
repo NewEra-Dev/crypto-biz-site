@@ -14,8 +14,7 @@ const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo');
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('Connected to MongoDB'))
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/myDatabase')  .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
 // Session setup with MongoDB store
