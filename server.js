@@ -122,5 +122,14 @@ app.post('/login',
   }
 );
 
+app.get('/logout', (req, res) => {
+  console.log('Logging out user');
+  req.logout((err) => {
+    if (err) console.error('Logout error:', err);
+    else console.log('Logout successful');
+    res.redirect('/login');
+  });
+});
+
 console.log('App started successfully');
 app.listen(process.env.PORT, () => console.log(`Server running on port ${process.env.PORT}`));
